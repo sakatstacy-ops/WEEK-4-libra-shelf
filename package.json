@@ -1,0 +1,22 @@
+{
+  "name": "spendwise-book-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mongoose-backed library catalog API and seed data",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.9.5"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.1"
+  }
+}

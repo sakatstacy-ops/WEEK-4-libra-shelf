@@ -1,0 +1,65 @@
+{
+  "info": {
+    "_postman_id": "e3ef9a13-c812-4d3f-90c7-e4d73a4c2c71",
+    "name": "Library Catalog API",
+    "description": "CRUD, search, filtering, pagination, and validation examples for the Library Book Catalog API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "genreId", "value": "REPLACE_WITH_GENRE_OBJECT_ID" },
+    { "key": "bookId", "value": "REPLACE_WITH_BOOK_OBJECT_ID" },
+    { "key": "librarianToken", "value": "REPLACE_WITH_LIBRARIAN_BEARER_TOKEN" },
+    { "key": "patronToken", "value": "REPLACE_WITH_PATRON_BEARER_TOKEN" },
+    { "key": "librarianEmail", "value": "librarian@example.com" },
+    { "key": "librarianPassword", "value": "SET_FROM_LOCAL_ENVIRONMENT" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        { "name": "GET health", "request": { "method": "GET", "url": "{{baseUrl}}/health" }, "response": [] }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        { "name": "POST register patron", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"patron@example.com\",\n  \"password\": \"change-this-password-123\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/auth/register" }, "response": [] },
+        { "name": "POST login librarian", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{librarianEmail}}\",\n  \"password\": \"{{librarianPassword}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/auth/login" }, "response": [] },
+        { "name": "GET my profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "url": "{{baseUrl}}/api/users/profile" }, "response": [] },
+        { "name": "POST logout", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "url": "{{baseUrl}}/api/auth/logout" }, "response": [] }
+      ]
+    },
+    {
+      "name": "Genres",
+      "item": [
+        { "name": "GET all genres", "request": { "method": "GET", "url": "{{baseUrl}}/genres" }, "response": [] },
+        { "name": "GET genre by ID", "request": { "method": "GET", "url": "{{baseUrl}}/genres/{{genreId}}" }, "response": [] },
+        { "name": "POST create genre", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Test Genre\",\n  \"slug\": \"postman-test-genre\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/genres" }, "response": [] },
+        { "name": "PUT update genre", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Postman Genre\",\n  \"slug\": \"updated-postman-genre\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/genres/{{genreId}}" }, "response": [] },
+        { "name": "DELETE genre (only if no books reference it)", "request": { "method": "DELETE", "url": "{{baseUrl}}/genres/{{genreId}}" }, "response": [] }
+      ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        { "name": "GET books (all filters combined)", "request": { "method": "GET", "url": "{{baseUrl}}/books?genre={{genreId}}&search=dune&page=1&limit=5" }, "response": [] },
+        { "name": "GET book by ID", "request": { "method": "GET", "url": "{{baseUrl}}/books/{{bookId}}" }, "response": [] },
+        { "name": "POST create book (librarian)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman Dune Edition\",\n  \"author\": \"Frank Herbert\",\n  \"isbn\": \"9781234598765\",\n  \"description\": \"A sample book created from Postman.\",\n  \"coverImage\": \"https://example.com/postman-dune.jpg\",\n  \"totalCopies\": 6,\n  \"availableCopies\": 4,\n  \"genre\": \"{{genreId}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "response": [] },
+        { "name": "POST invalid book (saved 400 example)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "response": [{ "name": "400 Validation failed", "originalRequest": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "status": "Bad Request", "code": 400, "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }], "cookie": [], "body": "{\n  \"error\": \"Validation failed\",\n  \"fields\": [\n    {\n      \"field\": \"title\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"author\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"isbn\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"description\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"coverImage\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"totalCopies\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"availableCopies\",\n      \"message\": \"is required\"\n    },\n    {\n      \"field\": \"genre\",\n      \"message\": \"is required\"\n    }\n  ]\n}" }] },
+        { "name": "PUT update book (librarian)", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Postman Dune Edition\",\n  \"author\": \"Frank Herbert\",\n  \"isbn\": \"9781234598766\",\n  \"description\": \"Updated sample book.\",\n  \"coverImage\": \"https://example.com/postman-dune-updated.jpg\",\n  \"totalCopies\": 7,\n  \"availableCopies\": 5,\n  \"genre\": \"{{genreId}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books/{{bookId}}" }, "response": [] },
+        { "name": "DELETE book (librarian)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "url": "{{baseUrl}}/books/{{bookId}}" }, "response": [] }
+      ]
+    },
+    {
+      "name": "Authorization checks",
+      "item": [
+        { "name": "POST book without token (401)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Authorization Check Book\",\n  \"author\": \"Test Author\",\n  \"isbn\": \"9781234598701\",\n  \"description\": \"Used to demonstrate anonymous access is denied.\",\n  \"coverImage\": \"https://example.com/auth-check.jpg\",\n  \"totalCopies\": 2,\n  \"availableCopies\": 2,\n  \"genre\": \"{{genreId}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "response": [] },
+        { "name": "POST book as patron (403)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{patronToken}}" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Patron Authorization Check\",\n  \"author\": \"Test Author\",\n  \"isbn\": \"9781234598702\",\n  \"description\": \"A patron cannot mutate catalog data.\",\n  \"coverImage\": \"https://example.com/patron-check.jpg\",\n  \"totalCopies\": 2,\n  \"availableCopies\": 2,\n  \"genre\": \"{{genreId}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "response": [] },
+        { "name": "PUT book as patron (403)", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{patronToken}}" }], "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books/{{bookId}}" }, "response": [] },
+        { "name": "DELETE book as patron (403)", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{patronToken}}" }], "url": "{{baseUrl}}/books/{{bookId}}" }, "response": [] },
+        { "name": "POST invalid book with librarian token (saved 400)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "response": [{ "name": "400 Validation failed", "originalRequest": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{librarianToken}}" }], "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/books" }, "status": "Bad Request", "code": 400, "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }], "cookie": [], "body": "{\n  \"error\": \"Validation failed\",\n  \"fields\": [\n    { \"field\": \"title\", \"message\": \"is required\" },\n    { \"field\": \"author\", \"message\": \"is required\" },\n    { \"field\": \"isbn\", \"message\": \"is required\" },\n    { \"field\": \"description\", \"message\": \"is required\" },\n    { \"field\": \"coverImage\", \"message\": \"is required\" },\n    { \"field\": \"totalCopies\", \"message\": \"is required\" },\n    { \"field\": \"availableCopies\", \"message\": \"is required\" },\n    { \"field\": \"genre\", \"message\": \"is required\" }\n  ]\n}" }] }
+      ]
+    }
+  ]
+}
