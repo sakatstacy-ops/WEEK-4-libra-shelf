@@ -97,8 +97,12 @@ The patron-facing React app lives in [`client/`](client/). It uses Vite, React R
 
 The catalog uses server-side filtering through `GET /books?genre=&search=&page=&limit=` rather than downloading the full collection. This keeps search, genre, and pagination combinable in one request and limits data transferred to the browser. Search waits 400 ms after typing before changing the query; filters stay in the URL, and the responsive grid reflows from two cards on small screens to four on wide screens. Catalog and detail views each render visible loading, error, and empty/not-found states. Cover images fall back to a local illustration if remote artwork is unavailable. Detail pages use `/book/:id` in the client because `/books/:id` is reserved for the proxied API route.
 
+### Reading List and Auth Persistence
+
+The reading list stores compact book summaries in browser `localStorage` under `stacks-reading-list-v1`. This makes add/remove/clear immediate and keeps the shelf available after refresh without requiring a patron account or a new backend endpoint. The trade-off is that the list belongs to one browser/device, can be cleared by the user, and is not synchronized across devices; a future version could move it to a user-owned API resource after login. Authentication is deliberately separate: the app never writes credentials or bearer tokens to localStorage. Login/register use the API's `HttpOnly`, `SameSite=Strict` session cookie, and `AuthContext` asks `/api/users/profile` on app load to restore the session. The booking route waits for that check and redirects unauthenticated visitors to `/login` while preserving the requested destination.
+
 ### Frontend Demo
 
-The recorded walkthrough is committed at [`client/public/demo.gif`](client/public/demo.gif). It demonstrates browsing the catalog, narrowing by genre, searching, and opening a book detail page.
+The recorded walkthrough is committed at [`client/public/demo.gif`](client/public/demo.gif). It demonstrates saving a book, refreshing to confirm the reading list persists, removing the book, being redirected from `/booking` to `/login` while signed out, signing in, and filling out all four booking fields.
 
-![Catalog demo: browse, filter, search, and open a book](client/public/demo.gif)
+![Reading list and booking demo: save, refresh, remove, sign in, and fill a booking](client/public/demo.gif)

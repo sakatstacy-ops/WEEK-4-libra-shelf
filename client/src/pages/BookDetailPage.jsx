@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Bookmark, BookOpen, CalendarDays, Hash } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { ErrorState, LoadingState } from '../components/StatePanel.jsx';
+import useReadingList from '../hooks/useReadingList.js';
 
 function hasPlaceholderCover(url) {
   if (!url) return true;
@@ -15,6 +16,7 @@ function hasPlaceholderCover(url) {
 
 export default function BookDetailPage() {
   const { id } = useParams();
+  const { readingList, addBook, removeBook } = useReadingList();
   const [state, setState] = useState({ book: null, loading: true, error: '' });
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function BookDetailPage() {
   const openLibraryCover = `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(book.isbn)}-L.jpg?default=false`;
   const usesPlaceholder = hasPlaceholderCover(book.coverImage);
   const initialCover = usesPlaceholder ? '/images/cover-placeholder.svg' : book.coverImage;
+  const isSaved = readingList.some((item) => item._id === book._id);
 
   return (
     <main className="detail-page">
@@ -62,7 +65,7 @@ export default function BookDetailPage() {
             <div><BookOpen size={16} /><span><small>IN THE LIBRARY</small>{book.totalCopies} {book.totalCopies === 1 ? 'copy' : 'copies'}</span></div>
             <div><CalendarDays size={16} /><span><small>ON THE SHELF</small>{book.availableCopies} available</span></div>
           </div>
-          <button className="button-primary save-book" type="button" onClick={(event) => { event.currentTarget.classList.toggle('saved'); event.currentTarget.setAttribute('aria-pressed', String(event.currentTarget.classList.contains('saved'))); }} aria-pressed="false"><Bookmark size={17} /> Save to my list</button>
+          <button className={`button-primary save-book${isSaved ? ' saved' : ''}`} type="button" onClick={() => isSaved ? removeBook(book._id) : addBook(book)} aria-pressed={isSaved}><Bookmark size={17} /> {isSaved ? 'Remove from my list' : 'Save to my list'}</button>
         </article>
       </div>
     </main>
